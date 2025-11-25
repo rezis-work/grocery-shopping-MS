@@ -1,8 +1,8 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const axios = require("axios");
+const amqplib = require("amqplib");
 
-const { APP_SECRET } = require("../config");
+const { APP_SECRET, MESSGAE_BROKER_URL, EXCHANGE_NAME } = require("../config");
 
 //Utility functions
 module.exports.GenerateSalt = async () => {
@@ -52,21 +52,49 @@ module.exports.FormateData = (data) => {
 };
 
 
-module.exports.PublichCustomerEvent = async (payload) => {
+// message broker functions
+
+// create a channel
+
+module.exports.CreateChannel = async () => {
+
   try {
-    await axios.post('http://localhost:8000/customer/app-events', payload);
+    const connection = await amqplib.connect(MESSGAE_BROKER_URL);
+    const channel = await connection.createChannel();
+    await channel.assertExchange(EXCHANGE_NAME, 'direct', false);
+    console.log("Connected to the message broker");
+  return channel;
   } catch (error) {
-    console.error('Error publishing customer event:', error.message);
-    // Don't throw - this is a fire-and-forget event
+    throw error;
+  }
+}
+
+// publish messages
+
+module.exports.PublishMessage = async (channel, binding_key, message) => {
+  try {
+    if (!channel) {
+      console.warn('RabbitMQ channel not available - message not published via RabbitMQ');
+      return;
+    }
+    await channel.publish(EXCHANGE_NAME, binding_key, Buffer.from(message));
+  } catch (error) {
+    console.error('Error publishing message to RabbitMQ:', error.message);
   }
 }
 
 
-module.exports.PublishShoppingEvents = async (payload) => {
-  try {
-    await axios.post('http://localhost:8000/shopping/app-events', payload);
-  } catch (error) {
-    console.error('Error publishing shopping event:', error.message);
-    // Don't throw - this is a fire-and-forget event
-  }
+// subscribe messages
+
+module.exports.SubscribeMessage = async (channel, service, binding_key) => {
+
+  const appQueue = await channel.assertQueue(QUEUE_NAME);
+
+  channel.bindQueue(appQueue.queue, EXCHANGE_NAME, binding_key);
+
+  channel.consume(appQueue.queue, async (data) => {
+    console.log("Received data");
+    console.log(data.content.toString());
+    channel.ack(data);
+  })
 }
