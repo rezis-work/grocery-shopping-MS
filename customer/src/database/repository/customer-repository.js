@@ -70,9 +70,9 @@ class CustomerRepository {
   async FindCustomerById({ id }) {
     try {
       const existingCustomer = await CustomerModel.findById(id)
-        .populate("address")
-        .populate("wishlist")
-        .populate("orders")
+        // .populate("address")
+        // .populate("wishlist")
+        // .populate("orders")
         .populate("cart.product");
       return existingCustomer;
     } catch (err) {

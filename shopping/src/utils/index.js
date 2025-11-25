@@ -1,8 +1,8 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const axios = require("axios");
+const amqplib = require("amqplib");
 
-const { APP_SECRET } = require("../config");
+const { APP_SECRET, MESSGAE_BROKER_URL, EXCHANGE_NAME, QUEUE_NAME } = require("../config");
 
 //Utility functions
 module.exports.GenerateSalt = async () => {
@@ -51,11 +51,74 @@ module.exports.FormateData = (data) => {
   }
 };
 
-module.exports.PublishCustomerEvent = async (payload) => {
+module.exports.CreateChannel = async () => {
+
   try {
-    await axios.post('http://localhost:8000/customer/app-events', payload);
+    const connection = await amqplib.connect(MESSGAE_BROKER_URL);
+    const channel = await connection.createChannel();
+    await channel.assertExchange(EXCHANGE_NAME, 'direct', false);
+    console.log("Connected to the message broker");
+  return channel;
   } catch (error) {
-    console.error('Error publishing customer event:', error.message);
-    // Don't throw - this is a fire-and-forget event
+    throw error;
+  }
+}
+
+// publish messages
+
+module.exports.PublishMessage = async (channel, binding_key, message) => {
+  try {
+    if (!channel) {
+      console.warn('RabbitMQ channel not available - message not published via RabbitMQ');
+      return;
+    }
+    await channel.publish(EXCHANGE_NAME, binding_key, Buffer.from(message));
+  } catch (error) {
+    console.error('Error publishing message to RabbitMQ:', error.message);
+  }
+}
+
+
+// subscribe messages
+
+module.exports.SubscribeMessage = async (channel, service, binding_key) => {
+  if (!channel) {
+    console.warn('RabbitMQ channel not available - cannot subscribe to messages');
+    return;
+  }
+
+  try {
+    const appQueue = await channel.assertQueue(QUEUE_NAME);
+
+    channel.bindQueue(appQueue.queue, EXCHANGE_NAME, binding_key);
+
+    channel.consume(appQueue.queue, async (data) => {
+      console.log("Received data");
+      console.log(data.content.toString());
+      
+      try {
+        const parsed = JSON.parse(data.content.toString());
+        // Check if payload is wrapped in FormateData (has data property with event inside)
+        // or if it's already in the correct format (has event property directly)
+        let payload;
+        if (parsed.event) {
+          // Already in correct format: {event: "...", data: {...}}
+          payload = parsed;
+        } else if (parsed.data && parsed.data.event) {
+          // Wrapped in FormateData: {data: {event: "...", data: {...}}}
+          payload = parsed.data;
+        } else {
+          // Fallback: use parsed as-is
+          payload = parsed;
+        }
+        await service.SubscribeEvents(payload);
+        channel.ack(data);
+      } catch (error) {
+        console.error('Error processing message:', error.message);
+        channel.ack(data);
+      }
+    });
+  } catch (error) {
+    console.error('Error setting up message subscription:', error.message);
   }
 }

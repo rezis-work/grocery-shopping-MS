@@ -101,9 +101,8 @@ module.exports = (app, channel) => {
 
         const {data} = await service.GetProductPayload(_id, {productId: req.body._id, qty: req.body.qty}, 'ADD_TO_CART');
         try {     
-            // PublichCustomerEvent(data);
-            PublishMessage(channel, SHOPPING_BINDING_KEY, JSON.stringify(data))
-            // PublishShoppingEvents(data);
+            // Publish to both services to keep carts in sync
+            PublishMessage(channel, CUSTOMER_BINDING_KEY, JSON.stringify(data))
             PublishMessage(channel, SHOPPING_BINDING_KEY, JSON.stringify(data))
             const response = {
                 cart: data.data.product,

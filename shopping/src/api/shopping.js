@@ -1,10 +1,15 @@
 const ShoppingService = require("../services/shopping-service");
 const UserAuth = require('./middlewares/auth');
-const { PublishCustomerEvent } = require("../utils");
+const { PublishMessage, SubscribeMessage } = require("../utils");
+const { CUSTOMER_BINDING_KEY, SHOPPING_BINDING_KEY } = require("../config");
 
-module.exports = (app) => {
+module.exports = (app, channel) => {
     
     const service = new ShoppingService();
+
+    if (channel) {
+        SubscribeMessage(channel, service, SHOPPING_BINDING_KEY);
+    }
 
     app.post('/order',UserAuth, async (req,res,next) => {
 
@@ -17,7 +22,8 @@ module.exports = (app) => {
             const { data: payloadData } = await service.getOrderPayload(_id, data, 'CREATE_ORDER');
             // payloadData is already { event, data: {...} } after extracting from FormateData wrapper
             // Send it directly to the customer service
-            PublishCustomerEvent(payloadData);
+            // PublishCustomerEvent(payloadData);
+            PublishMessage(channel, CUSTOMER_BINDING_KEY, JSON.stringify(payloadData))
             return res.status(200).json(data);
             
         } catch (err) {

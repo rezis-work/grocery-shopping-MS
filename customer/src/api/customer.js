@@ -1,8 +1,14 @@
 const CustomerService = require("../services/customer-service");
 const UserAuth = require("./middlewares/auth");
+const { SubscribeMessage } = require('../utils');
+const { CUSTOMER_BINDING_KEY } = require('../config');
 
-module.exports = (app) => {
+module.exports = (app, channel) => {
   const service = new CustomerService();
+
+  if (channel) {
+    SubscribeMessage(channel, service, CUSTOMER_BINDING_KEY);
+  }
 
   app.post("/signup", async (req, res, next) => {
     try {
