@@ -152,25 +152,43 @@ class CustomerService {
 
         const { userId, product, order, qty } = data;
 
-        switch(event){
-            case 'ADD_TO_WISHLIST':
-            case 'REMOVE_FROM_WISHLIST':
-                await this.AddToWishlist(userId,product)
-                break;
-            case 'ADD_TO_CART':
-                await this.ManageCart(userId,product, qty, false);
-                break;
-            case 'REMOVE_FROM_CART':
-                await this.ManageCart(userId,product,qty, true);
-                break;
-            case 'CREATE_ORDER':
-                await this.ManageOrder(userId,order);
-                break;
-            case 'TEST_EVENT':
-                console.log("============== TEST_EVENT received ==============");
-                break;
-            default:
-                break;
+        try {
+            switch(event){
+                case 'ADD_TO_WISHLIST':
+                    console.log('Customer Service: Processing ADD_TO_WISHLIST event');
+                    await this.AddToWishlist(userId, product);
+                    console.log('Customer Service: Successfully added to wishlist');
+                    break;
+                case 'REMOVE_FROM_WISHLIST':
+                    console.log('Customer Service: Processing REMOVE_FROM_WISHLIST event');
+                    await this.AddToWishlist(userId, product);
+                    console.log('Customer Service: Successfully removed from wishlist');
+                    break;
+                case 'ADD_TO_CART':
+                    console.log('Customer Service: Processing ADD_TO_CART event');
+                    await this.ManageCart(userId, product, qty, false);
+                    console.log('Customer Service: Successfully added to cart');
+                    break;
+                case 'REMOVE_FROM_CART':
+                    console.log('Customer Service: Processing REMOVE_FROM_CART event');
+                    await this.ManageCart(userId, product, qty, true);
+                    console.log('Customer Service: Successfully removed from cart');
+                    break;
+                case 'CREATE_ORDER':
+                    console.log('Customer Service: Processing CREATE_ORDER event');
+                    await this.ManageOrder(userId, order);
+                    console.log('Customer Service: Successfully created order');
+                    break;
+                case 'TEST_EVENT':
+                    console.log("============== TEST_EVENT received ==============");
+                    break;
+                default:
+                    console.log(`Customer Service: Unknown event type: ${event}`);
+                    break;
+            }
+        } catch (error) {
+            console.error(`Customer Service: Error processing event ${event}:`, error.message);
+            throw error;
         }
  
     }

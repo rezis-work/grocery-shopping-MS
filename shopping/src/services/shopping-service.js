@@ -78,16 +78,26 @@ class ShoppingService {
 
     const { userId, product, order, qty } = data;
 
-    switch(event){
-        case 'ADD_TO_CART':
-            await this.ManageCart(userId, product, qty, false);
-            break;
-        case 'REMOVE_FROM_CART':
-            await this.ManageCart(userId, product, qty, true);
-            break;
-        default:
-            console.log(`Unknown event type: ${event}`);
-            break;
+    try {
+        switch(event){
+            case 'ADD_TO_CART':
+                console.log('Shopping Service: Processing ADD_TO_CART event');
+                await this.ManageCart(userId, product, qty, false);
+                console.log('Shopping Service: Successfully added to cart');
+                break;
+            case 'REMOVE_FROM_CART':
+                console.log('Shopping Service: Processing REMOVE_FROM_CART event');
+                await this.ManageCart(userId, product, qty, true);
+                console.log('Shopping Service: Successfully removed from cart');
+                break;
+            default:
+                // Silently ignore events that don't belong to this service
+                // (wishlist events are handled by customer service)
+                break;
+        }
+    } catch (error) {
+        console.error(`Shopping Service: Error processing event ${event}:`, error.message);
+        throw error;
     }
 }
 
