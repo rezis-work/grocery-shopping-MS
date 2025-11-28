@@ -1,4 +1,4 @@
-version: '3'
+# yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
 services:
   nosql-db:
     image: mongo
@@ -9,7 +9,7 @@ services:
       - ./db/:/data/db
   products:
     build:
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
       context: ./products
     container_name: products
     ports:
@@ -17,13 +17,17 @@ services:
     restart: always
     depends_on:
       - nosql-db
+    environment:
+      - MONGODB_URI=mongodb://nosql-db:27017/products
+      - PORT=8002
+      - NODE_ENV=prod
     volumes:
       - .:/app
       - /app/products/node_modules
 
   shopping:
     build:
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
       context: ./shopping
     container_name: shopping
     ports:
@@ -31,12 +35,16 @@ services:
     restart: always
     depends_on:
       - nosql-db
+    environment:
+      - MONGODB_URI=mongodb://nosql-db:27017/shopping
+      - PORT=8003
+      - NODE_ENV=prod
     volumes:
       - .:/app
       - /app/shopping/node_modules
   customer:
     build:
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
       context: ./customer
     container_name: customer
     ports:
@@ -44,6 +52,10 @@ services:
     restart: always
     depends_on:
       - nosql-db
+    environment:
+      - MONGODB_URI=mongodb://nosql-db:27017/customer
+      - PORT=8001
+      - NODE_ENV=prod
     volumes:
       - .:/app
       - /app/customer/node_modules
