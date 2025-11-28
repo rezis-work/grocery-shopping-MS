@@ -8,7 +8,7 @@ module.exports = (app, channel) => {
     const service = new ProductService();
 
 
-    app.post('/product/create', async(req,res,next) => {
+    app.post('/create', async(req,res,next) => {
         
         try {
             const { name, desc, type, unit,price, available, suplier, banner } = req.body; 
@@ -22,7 +22,7 @@ module.exports = (app, channel) => {
         
     });
 
-    app.get('/product/category/:type', async(req,res,next) => {
+    app.get('/category/:type', async(req,res,next) => {
         
         const type = req.params.type;
         
@@ -36,7 +36,7 @@ module.exports = (app, channel) => {
 
     });
 
-    app.get('/product/:id', async(req,res,next) => {
+    app.get('/:id', async(req,res,next) => {
         
         const productId = req.params.id;
 
@@ -63,7 +63,7 @@ module.exports = (app, channel) => {
        
     });
      
-    app.put('/product/wishlist',UserAuth, async (req,res,next) => {
+    app.put('/wishlist',UserAuth, async (req,res,next) => {
 
         const { _id } = req.user;
 
@@ -78,7 +78,7 @@ module.exports = (app, channel) => {
         }
     });
     
-    app.delete('/product/wishlist/:id',UserAuth, async (req,res,next) => {
+    app.delete('/wishlist/:id',UserAuth, async (req,res,next) => {
 
         const { _id } = req.user;
         const productId = req.params.id;
@@ -95,7 +95,7 @@ module.exports = (app, channel) => {
     });
 
 
-    app.put('/product/cart',UserAuth, async (req,res,next) => {
+    app.put('/cart',UserAuth, async (req,res,next) => {
         
         const { _id } = req.user;
 
@@ -114,7 +114,7 @@ module.exports = (app, channel) => {
         }
     });
     
-    app.delete('/product/cart/:id',UserAuth, async (req,res,next) => {
+    app.delete('/cart/:id',UserAuth, async (req,res,next) => {
 
         const { _id } = req.user;
         const productId = req.params.id;
@@ -138,7 +138,7 @@ module.exports = (app, channel) => {
     });
 
     //get Top products and category
-    app.get('/product', async (req,res,next) => {
+    app.get('/', async (req,res,next) => {
         //check validation
         try {
             const { data} = await service.GetProducts();        
