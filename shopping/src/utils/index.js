@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const amqplib = require("amqplib");
 
-const { APP_SECRET, MESSGAE_BROKER_URL, EXCHANGE_NAME, QUEUE_NAME } = require("../config");
+const { APP_SECRET, MESSAGE_BROKER_URL, EXCHANGE_NAME, QUEUE_NAME } = require("../config");
 
 //Utility functions
 module.exports.GenerateSalt = async () => {
@@ -54,7 +54,7 @@ module.exports.FormateData = (data) => {
 module.exports.CreateChannel = async () => {
 
   try {
-    const connection = await amqplib.connect(MESSGAE_BROKER_URL);
+    const connection = await amqplib.connect(MESSAGE_BROKER_URL);
     const channel = await connection.createChannel();
     await channel.assertExchange(EXCHANGE_NAME, 'direct', false);
     console.log("Connected to the message broker");
