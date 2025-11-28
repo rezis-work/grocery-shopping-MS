@@ -1,6 +1,0 @@
-{"level":"error","message":"Mon Nov 24 2025 19:03:48 GMT+0400 (Georgia Standard Time)-{}","private":true}
-{"level":"error","message":"Tue Nov 25 2025 10:53:55 GMT+0400 (Georgia Standard Time)-{\"name\":\"Data Not found\",\"statusCode\":{\"name\":\"API Error\",\"statusCode\":500,\"isOperational\":true},\"isOperational\":true}","private":true}
-{"level":"error","message":"Tue Nov 25 2025 10:58:40 GMT+0400 (Georgia Standard Time)-{\"name\":\"Data Not found\",\"statusCode\":{\"name\":\"API Error\",\"statusCode\":500,\"isOperational\":true},\"isOperational\":true}","private":true}
-{"level":"error","message":"Tue Nov 25 2025 11:01:05 GMT+0400 (Georgia Standard Time)-{\"name\":\"Data Not found\",\"statusCode\":500,\"isOperational\":true}","private":true}
-{"level":"error","message":"Tue Nov 25 2025 11:04:07 GMT+0400 (Georgia Standard Time)-{\"name\":\"Data Not found\",\"statusCode\":500,\"isOperational\":true}","private":true}
-{"level":"error","message":"Tue Nov 25 2025 11:07:01 GMT+0400 (Georgia Standard Time)-{\"name\":\"Data Not found\",\"statusCode\":500,\"isOperational\":true}","private":true}
