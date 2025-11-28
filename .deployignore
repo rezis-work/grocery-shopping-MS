@@ -1,0 +1,10 @@
+docker-compose.yaml
+products/
+shopping/
+customer/
+proxy/
+db/
+*.md
+.git/
+node_modules/
+
